@@ -7,10 +7,6 @@ import (
 	//"URL_shortener/base62"
 )
 
-type UrlStruct struct {
-	Url string
-}
-
 // Создаем сервер и эндпоинты
 func SetupServer() *gin.Engine {
 	r := gin.Default()

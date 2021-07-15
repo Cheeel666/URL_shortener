@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"log"
 )
 
 const (
@@ -17,15 +16,14 @@ const (
 
 
 
-func AddUrl(url string) int {
-	var id int
+func AddUrl(url string) (id int, err error) {
 	conn := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, db_name)
 
 	db, err := sql.Open("postgres", conn)
 	if err != nil {
-		panic(err)
+		return -1, err
 	}
 	defer db.Close()
 
@@ -33,52 +31,53 @@ func AddUrl(url string) int {
 	fmt.Println(rows)
 	row, err := db.Query("SELECT max(id_url) from links")
 	if err != nil {
-		panic(err)
+		return -1, err
 	}
 	for row.Next() {
 		if err := row.Scan(&id); err != nil {
-			log.Fatal(err)
+			return -1, err
 		}
 	}
-	fmt.Println("InsertNew: ", id, url)
-	return id
+
+	//fmt.Println("InsertNew: ", id, url)
+	return id, nil
 }
 
-func UpdateUrl(id int, shortUrl string) {
+func UpdateUrl(id int, shortUrl string) (err error) {
 	conn := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, db_name)
 
 	db, err := sql.Open("postgres", conn)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer db.Close()
-	fmt.Println("Update url:", id, shortUrl)
 
 	rows := db.QueryRow("UPDATE links SET shorten_url = ($1) where id_url = ($2);", shortUrl, id)
-	fmt.Println(rows)
+	_ = rows
+	//fmt.Println(rows)
+	return nil
 }
 
-func SelectLongUrl(url string) string {
-	var resultUrl string
+func SelectLongUrl(url string) (resultUrl string, err error) {
 	conn := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, db_name)
 
 	db, err := sql.Open("postgres", conn)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	defer db.Close()
 
 	row, err := db.Query("SELECT url FROM links where shorten_url = ($1)", url)
 	for row.Next() {
 		if err := row.Scan(&resultUrl); err != nil {
-			log.Fatal(err)
+			return "", err
 		}
 	}
-	return resultUrl
+	return resultUrl, nil
 }
 
 //
