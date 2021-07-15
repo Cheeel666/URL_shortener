@@ -1,24 +1,52 @@
 package utils
 
-import "github.com/gin-gonic/gin"
-import "URL_shortener/base62"
-import "URL_shortener/db"
+import (
+	"URL_shortener/base62"
+	"URL_shortener/db"
+	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"io/ioutil"
+)
 
-func shortener(c *gin.Context)  {
-	var result_url string
-	result_url = "Ok"
-	c.JSON(200, gin.H{"url1":result_url})
+
+type UrlStruct struct {
+	Url string
 }
 
-func longener(c *gin.Context)  {
-	var result_url string
-	result_url = "Ok"
-	c.JSON(200, gin.H{"url1":result_url})
+
+// хендлеры для пост запрсоов
+func Shortener(c *gin.Context)  {
+	var url UrlStruct
+
+	jsonData, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		panic(err)
+	}
+	json.Unmarshal([]byte(jsonData), &url)
+
+	c.JSON(200, gin.H{"url":NewShortUrl(url.Url)})
+
+}
+
+func Longener(c *gin.Context)  {
+	var url UrlStruct
+
+	jsonData, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		panic(err)
+	}
+	json.Unmarshal([]byte(jsonData), &url)
+
+	c.JSON(200, gin.H{"url":GetLongUrl(url.Url)})
 }
 
 func NewShortUrl(url string) string {
 	id := db.AddUrl(url)
-	shorterUrl := base62.ToAlphabet(id)
+	shorterUrl := base62.ToAlphabet(id - 1)
 	db.UpdateUrl(id, shorterUrl)
 	return shorterUrl
+}
+
+func GetLongUrl(url string) string {
+	return db.SelectLongUrl(url)
 }

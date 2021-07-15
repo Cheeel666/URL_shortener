@@ -21,7 +21,7 @@ func reverse(s string) (result string) {
 	return
 }
 
-func ToAlphabet(decimal int, alphabet string) string {
+func ToAlphabet(decimal int) string {
 	base := len(alphabet)
 	result := ""
 	if decimal == 0 {
@@ -36,6 +36,6 @@ func ToAlphabet(decimal int, alphabet string) string {
 }
 
 //func main() {
-//	num := 63
-//	fmt.Println(toAlphabet(num, alphabet))
+//	num := 7
+//	fmt.Println(ToAlphabet(num, alphabet))
 //}
