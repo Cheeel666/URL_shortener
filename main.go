@@ -4,5 +4,5 @@ import "URL_shortener/server"
 
 
 func main() {
-	server.SetupServer().Run()
+	server.SetupServer().Run("0.0.0.0:8070")
 }
